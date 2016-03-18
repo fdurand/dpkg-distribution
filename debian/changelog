@@ -1,0 +1,6 @@
+dpkg-distribution (1.0.0-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Durand Fabrice <fdurand@inverse.ca>  Wed, 16 Mar 2016 12:00:00 -0400
+

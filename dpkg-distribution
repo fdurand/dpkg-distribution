@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+#
+# dpkg-distribution
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+use strict;
+use warnings;
+
+use Dpkg ();
+use Dpkg::Gettext;
+use Dpkg::ErrorHandling;
+
+use Linux::Distribution;
+
+sub usage {
+    printf _g(
+'Usage: %s [<command>]')
+    . "\n\n" . _g(
+'Commands:
+  --is <vendor>           returns true if current vendor is <vendor>.
+  --is_version <version>  returns true if current version is <version>.
+  --is_squeeze            returns true if the distribution is squeeze
+  --is_wheezy             returns true if the distribution is wheezy
+  --is_jessie             returns true if the distribution is jessie
+  --is_lucid              returns true if the distribution is lucid
+  --is_precise            returns true if the distribution is precise
+  --is_trusty             returns true if the distribution is trusty
+  --is_xenial             returns true if the distribution is xenial
+  --query <field>         print the content of the field (vendor|version).
+  --help                  show this help message.')
+  . "\n", 'dpkg-distribution';
+;
+}
+
+my ($vendor, $param, $action, $version);
+
+while (@ARGV) {
+    $_ = shift(@ARGV);
+    if (m/^--(is|is_version|query)$/) {
+        usageerr(_g('two commands specified: --%s and --%s'), $1, $action)
+            if defined($action);
+        $action = $1;
+        $param = shift(@ARGV);
+        usageerr(_g('%s needs a parameter'), $_) unless defined $param;
+    } elsif (m/^-(?:\?|-help)$/) {
+        usage();
+        exit 0;
+    } elsif (m/^--(is_squeeze|is_wheezy|is_jessie|is_lucid|is_precise|is_trusty|is_xenial)$/) {
+       $action = $1;
+    } else {
+	usageerr(_g("unknown option \`%s'"), $_);
+    }
+}
+
+usageerr(_g('need an action option')) unless defined($action);
+
+my $distribution = Linux::Distribution->new;
+$vendor = $distribution->distribution_name();
+$version = $distribution->distribution_version();
+
+if ($action eq 'is') {
+    printf _g("Vendor %s.\n") , $vendor; 
+    exit(0) if lc($param) eq lc($vendor);
+    exit(1);
+
+} elsif ($action eq 'is_version') {
+    printf _g("Version %s.\n") , $version;
+    exit(0) if lc($param) eq lc($version);
+    exit(1);
+
+} elsif ($action eq 'query') {
+    if ($param eq "vendor") {
+        printf _g("Vendor %s.\n") , $vendor;
+    } elsif ($param eq "version") {
+        printf _g("Version %s.\n") , $version;
+    }
+
+} elsif ($action eq 'is_squeeze') {
+    exit(0) if ( ($vendor eq 'debian') && ( int($version) >= 6 && int($version) < 7 ) );
+    exit(1);
+} elsif ($action eq 'is_wheezy') {
+    exit(0) if ( ($vendor eq 'debian') && ( int($version) >= 7 && int($version) < 8 ) );
+    exit(1);
+} elsif ($action eq 'is_jessie') {
+    exit(0) if ( ($vendor eq 'debian') && ( int($version) >= 8 && int($version) < 9 ) );
+    exit(1);
+} elsif ($action eq 'is_lucid') {
+    exit(0) if ( ($vendor eq 'ubuntu') && ( int($version) >= 10 && int($version) < 11 ) );
+    exit(1);
+} elsif ($action eq 'is_precise') {
+    exit(0) if ( ($vendor eq 'ubuntu') && ( int($version) >= 12 && int($version) < 13 ) );
+    exit(1);
+} elsif ($action eq 'is_trusty') {
+    exit(0) if ( ($vendor eq 'ubuntu') && ( int($version) >= 14 && int($version) < 15 ) );
+    exit(1);
+} elsif ($action eq 'is_xenial') {
+    exit(0) if ( ($vendor eq 'ubuntu') && ( int($version) >= 16 && int($version) < 17 ) );
+    exit(1);
+}

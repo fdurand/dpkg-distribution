@@ -1,0 +1,13 @@
+Source: dpkg-distribution
+Section: devel
+Priority: optional
+Maintainer: Durand fabrice <fdurand@inverse.ca>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+
+Package: dpkg-distribution
+Architecture: all
+Depends: ${misc:Depends},
+ perl, libdpkg-perl, liblinux-distribution-perl
+Description: dpkg-distribution
+ dpkg-distribution is a packaging tool that will tell you on which distribution the build is running
